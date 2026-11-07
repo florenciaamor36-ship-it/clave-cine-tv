@@ -1,16 +1,17 @@
 # Clave Cine TV
 
-App Android de La Clave Argentina para organizar y reproducir películas, videos y canales en vivo desde listas M3U/M3U8 que la persona usuaria posee o está autorizada a utilizar.
+App Android de La Clave Argentina para buscar contenido público de YouTube, incluidas transmisiones en vivo activas, y abrir su reproducción en la app oficial de YouTube.
 
-## Estado de esta primera base
+## Estado de esta base
 
 - Aplicación Android independiente; no modifica Clave Video ni su repositorio.
-- Reproductor integrado con AndroidX Media3/ExoPlayer y soporte HLS.
-- Importación de lista M3U/M3U8 desde archivo local o URL HTTPS.
-- Búsqueda por nombre/categoría, filtros Inicio/En vivo/Películas, reproducción y persistencia local de la lista.
-- No incluye catálogo de películas, URLs de canales, credenciales IPTV ni contenido de terceros.
-- La clasificación inicial de canales/películas es heurística (nombre/grupo); puede requerir corrección para algunas listas.
-- Este código todavía no tiene APK compilada ni prueba en dispositivo; el CI se añadirá al repositorio.
+- Consulta de YouTube Data API v3 para búsqueda de videos y transmisiones activas (`eventType=live`).
+- Los resultados se abren en la aplicación o web oficial de YouTube, conservando su reproducción, anuncios, branding y restricciones.
+- La clave API se introduce en el dispositivo y se guarda en preferencias privadas; para distribución hay que crear clave con restricciones Android (package `ar.com.laclave.cinetv` más huella SHA-1) y configurar cuota.
+- No incluye películas, enlaces, canales, credenciales ni catálogo propios.
+- Búsqueda no significa que una película sea legalmente gratuita ni disponible para todos; resultados dependen de YouTube y su región/restricciones.
+- Esta versión no da acceso a películas compradas/alquiladas desde reproductor propio: esas se reproducen en YouTube con la cuenta que las adquirió.
+- Sin reproductor que extraiga streams ni función de descarga.
 
 ## Requisitos y construcción
 
@@ -26,17 +27,24 @@ APK debug: `app/build/outputs/apk/debug/app-debug.apk`. El paquete de prueba usa
 
 ## Uso
 
-Importar archivo `.m3u`/`.m3u8` o pegar una URL HTTPS directa a una lista. La app filtra URLs no HTTP/HTTPS dentro de M3U. Las listas quedan localmente en el dispositivo. Al tocar un elemento, se inicia el reproductor integrado.
+Configurar una clave de YouTube Data API v3 restringida al paquete y huella SHA-1 de firma de esta aplicación. Buscar videos o transmisiones activas y tocar un resultado para abrirlo en YouTube. La búsqueda consume cuota de la API; la cuota y disponibilidad dependen del proyecto de Google Cloud.
 
-No se incluye descarga de películas ni televisión en esta versión. No usar para acceder a contenido sin autorización. Verificar derechos de retransmisión, licencias de las fuentes y leyes locales.
+No hay catálogo separado para películas alquiladas o compradas ni reproducción fuera de YouTube. No se descargan ni guardan videos de YouTube.
 
 ## Privacidad y seguridad
 
-- Las listas importadas se guardan en preferencias privadas locales de la aplicación.
-- No hay cuenta, telemetría propia ni backend en esta base.
-- No importes listas con credenciales que no quieras guardar en este dispositivo. Para una versión futura, se puede mejorar el almacenamiento protegido y permitir borrar listas.
-- Los enlaces de contenido pueden contener tokens; no se muestran ni se envían a ningún backend desde esta app.
+- No hay cuenta ni backend en esta base.
+- La clave se guarda en preferencias privadas del dispositivo, pero los secretos embebidos/guardados en un cliente no son totalmente secretos; restringí la clave por aplicación Android y cuotas en Google Cloud, y considera interponer backend antes de una distribución amplia.
+- Las consultas a YouTube transmiten el texto de búsqueda, la clave API y datos de red directamente al API oficial de Google.
+- Revisar y añadir política de privacidad antes de distribución pública, en conformidad con los requisitos de YouTube API Services.
 
-## Créditos y licencias
+## Créditos, términos y licencias
 
-El reproductor usa AndroidX Media3/ExoPlayer bajo licencias de Google/AndroidX (consulta notices de dependencias al distribuir). El proyecto es una app nueva; no copia el código de LibreTube. Si se incorporan componentes GPL de LibreTube en el futuro, habrá que revisar compatibilidad de licencias y publicar el código fuente correspondiente.
+Este proyecto no incorpora código fuente de LibreTube. Usa YouTube Data API y dirige al reproductor oficial de YouTube. Antes de distribución hay que mostrar atribución/branding de YouTube, enlazar sus Términos de Servicio, publicar una política de privacidad y cumplir los YouTube API Services Terms/Developer Policies. La API y el contenido de YouTube no conceden derechos para copiar, almacenar, descargar o reproducir por fuera de sus métodos oficiales. AndroidX/Compose se distribuyen bajo sus respectivas licencias; revisar notices de dependencias en una distribución final.
+
+Referencias oficiales:
+- API search: https://developers.google.com/youtube/v3/docs/search/list
+- Developer policies: https://developers.google.com/youtube/terms/developer-policies
+- Required minimum functionality / Referer Android: https://developers.google.com/youtube/terms/required-minimum-functionality
+- Condiciones de API: https://developers.google.com/youtube/terms/api-services-terms-of-service
+- Películas compradas/alquiladas: https://support.google.com/youtube/answer/9679194?hl=en
